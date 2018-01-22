@@ -1,0 +1,1 @@
+/usr/share/filebeat/bin/filebeat -c /home/vagrant/pit-workshop/filebeat/filebeat.yml -path.home /home/vagrant/pit-workshop/filebeat -path.config /home/vagrant/pit-workshop/filebeat -path.data /home/vagrant/pit-workshop/filebeat -path.logs /home/vagrant/pit-workshop/filebeat -e -d "publish"

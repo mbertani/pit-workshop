@@ -1,0 +1,30 @@
+filebeat:
+  registry_file: /home/vagrant/pit-workshop/filebeat/registry_filebeat.json
+  prospectors:
+    -
+      paths:
+      - /home/vagrant/pit-workshop/filebeat/data/generated.json
+      json.keys_under_root: false
+      json.add_error_key: true
+      json.overwrite_keys: true
+      fields:
+        pit_document_type: person-data
+        pit_codec: json
+        env.domain: test.com
+        env.physical_environment: TEST1
+        env.runtime_enviroment: TEST
+      fields_under_root: true
+
+fields_under_root: true
+fields:
+  fqdn: ${NAME:default}.test.com
+tags: ["generated","data"]
+
+output.logstash:
+  hosts: ["localhost:5001"]
+
+logging:
+  to_files: true
+  files:
+    path: /home/vagrant/pit-workshop/filebeat/logging_filebeat.log
+  level: error

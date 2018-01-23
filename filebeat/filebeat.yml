@@ -1,9 +1,9 @@
 filebeat:
-  registry_file: /home/vagrant/pit-workshop/filebeat/registry_filebeat.json
+  registry_file: /home/vagrant/pit-workshop/filebeat/registry.json
   prospectors:
     -
       paths:
-      - /home/vagrant/pit-workshop/data/generated.json
+      - /home/vagrant/pit-workshop/data/small.json
       json.keys_under_root: false
       json.add_error_key: true
       json.overwrite_keys: true

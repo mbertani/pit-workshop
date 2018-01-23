@@ -2,6 +2,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.vm.network "forwarded_port", guest: 9200, host: 9200, host_ip: "127.0.0.1", id: 'elasticsearch-port'
   config.vm.network "forwarded_port", guest: 5601, host: 5601, host_ip: "127.0.0.1", id: 'kibana-port'
+  config.vm.network "forwarded_port", guest: 9600, host: 9600, host_ip: "127.0.0.1", id: 'logstash-stats-port'
   
   if Vagrant.has_plugin?("vagrant-vbguest") then
     config.vbguest.auto_update = false
@@ -16,13 +17,13 @@ Vagrant.configure("2") do |config|
     # Update the system
 	apt-get update
 	apt-get -y upgrade
-	# Install java 9
+	# Install java
     apt-get install --yes python-software-properties
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update -qq
     echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
     echo debconf shared/accepted-oracle-license-v1-1 seen true | /usr/bin/debconf-set-selections
-    sudo apt-get install --yes oracle-java9-installer
+    sudo apt-get install --yes oracle-java8-installer
     yes "" | apt-get -f install
 	# Download & Install ES
 	wget -O elasticsearch.deb -nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.1.2.deb
@@ -35,6 +36,9 @@ Vagrant.configure("2") do |config|
 	wget -O logstash.deb -nv https://artifacts.elastic.co/downloads/logstash/logstash-6.1.2.deb
 	dpkg -i logstash.deb
 	rm logstash.deb	
+	#Bind logstash server for external use
+	hostname -I | xargs printf 'http.host: %s\n' >> /etc/logstash/logstash.yml
+	hostname -I | xargs printf 'http.port: 9600\n' >> /etc/logstash/logstash.yml
 	# Download & Install Kibana
 	wget -O kibana.deb -nv https://artifacts.elastic.co/downloads/kibana/kibana-6.1.2-amd64.deb
 	dpkg -i kibana.deb
@@ -54,9 +58,10 @@ Vagrant.configure("2") do |config|
 	sudo apt-get install -y git
 	git clone https://github.com/mbertani/pit-workshop.git
 	chown -R vagrant:vagrant /home/vagrant/pit-workshop	
-	# Fix permissions to run filebeat
-	sudo su vagrant
+	# Fix permissions, env variables
+	hostname -I | xargs printf 'export LOCALIP=%s\n' >> /home/vagrant/.profile	
 	chmod +x /home/vagrant/pit-workshop/filebeat/run_filebeat.sh
+	chmod +x /home/vagrant/pit-workshop/logstash/run_logstash.sh
 	chmod go-w /home/vagrant/pit-workshop/filebeat/filebeat.yml
    SHELL
   

@@ -21,7 +21,7 @@ fields:
 tags: ["generated","data"]
 
 output.logstash:
-  hosts: ["localhost:5001"]
+  hosts: ["${LOCALIP}:5001"]
 
 logging:
   to_files: true

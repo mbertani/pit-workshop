@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
     # Update the system
 	apt-get update
 	apt-get -y upgrade
-	# java
+	# Install java 9
     apt-get install --yes python-software-properties
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update -qq
@@ -24,11 +24,11 @@ Vagrant.configure("2") do |config|
     echo debconf shared/accepted-oracle-license-v1-1 seen true | /usr/bin/debconf-set-selections
     sudo apt-get install --yes oracle-java9-installer
     yes "" | apt-get -f install
-#	# Download & Install ES
+	# Download & Install ES
 	wget -O elasticsearch.deb -nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.1.2.deb
 	dpkg -i elasticsearch.deb
 	rm elasticsearch.deb
-	#configure ES
+	#configure ES. To access ES from the host we have to bind the server to an IP
 	hostname -I | xargs printf 'network.host: %s\n' >> /etc/elasticsearch/elasticsearch.yml
 	printf 'http.port: 9200\n' >> /etc/elasticsearch/elasticsearch.yml	
 	# Download & Install Logstash   
@@ -43,11 +43,21 @@ Vagrant.configure("2") do |config|
 	hostname -I | xargs printf 'server.host: %s\n' >> /etc/kibana/kibana.yml
 	hostname -I | xargs printf 'elasticsearch.url: "http://%s:9200"\n' >> /etc/kibana/kibana.yml
 	printf 'server.port: 5601\n' >> /etc/kibana/kibana.yml	
-	
+	# Download & Install Filebeat
 	wget -O filebeat.deb -nv https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.1.2-amd64.deb
 	dpkg -i filebeat.deb
 	rm filebeat.deb		
+	# Make the user vagrant owner of the configuration file. We'll make changes here.
 	chown -R vagrant:vagrant /etc/filebeat
+	# Install git and checkout the repo
+	cd /home/vagrant
+	sudo apt-get install -y git
+	git clone https://github.com/mbertani/pit-workshop.git
+	chown -R vagrant:vagrant /home/vagrant/pit-workshop	
+	# Fix permissions to run filebeat
+	sudo su vagrant
+	chmod +x /home/vagrant/pit-workshop/filebeat/run_filebeat.sh
+	chmod go-w /home/vagrant/pit-workshop/filebeat/filebeat.yml
    SHELL
   
 end

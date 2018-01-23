@@ -3,7 +3,7 @@ filebeat:
   prospectors:
     -
       paths:
-      - /home/vagrant/pit-workshop/filebeat/data/generated.json
+      - /home/vagrant/pit-workshop/data/generated.json
       json.keys_under_root: false
       json.add_error_key: true
       json.overwrite_keys: true
